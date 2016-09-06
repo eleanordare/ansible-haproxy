@@ -5,9 +5,8 @@
     state: present
 
 - name: change SE linux settings
-  replace: dest='/etc/selinux/config'
-    regexp='SELINUX=enforcing'
-    replace='SELINUX=permissive'
+  shell: semanage port -m -t http_port_t -p tcp 8081
+  # change to frontend port
 
 - name: update HAProxy config
   template: src=templates/haproxy.cfg 
