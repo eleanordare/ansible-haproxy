@@ -1,0 +1,14 @@
+---
+- name: store JSON file
+  uri:
+    url: http://localhost:3000/api/v1/todos
+    dest: output.json
+    method: GET
+
+- name: put JSON in variable
+  set_fact:
+    JSON_contents: "{{ lookup('file', 'output.json') }}"
+
+- name: list all elements from database
+  shell: "echo 'Name: {{ item.text }}, Location: {{ item.ip }}:{{ item.port }}' >> pretty.txt"
+  with_items: "{{ JSON_contents}}"

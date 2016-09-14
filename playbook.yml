@@ -1,8 +1,5 @@
-- hosts: all # change hosts file to include relevant hosts
+- hosts: localhost # change hosts file to include relevant hosts
   become: yes
-  roles:
-  - geerlingguy.jenkins # install jenkins, launch instance (optional)
-  - haproxy # install haproxy, update config file with variables
   
   # edits haproxy config file with new data
   vars:
@@ -10,15 +7,11 @@
     haproxy_mode: http # default
     haproxy_enable_stats: enable # default
     haproxy_algorithm: roundrobin # default
-
-    # change to each relevant jenkins instance
-    # could also be changed to import list of objects
-    haproxy_backend_servers:
-      - {name: server1, ip: servera.lab.example.com, port: 80, paramstring: check}
-      - {name: server2, ip: tower.lab.example.com, port: 80, paramstring: check}
-    haproxy_stats_users: # change to relevant users DB (optional for stats)
-      - {username: student, password: student}
     haproxy_frontend: localhost:8081 # change to frontend root URL
+
+  roles:
+    - database # pull jenkins info from JSON
+    - haproxy # install haproxy, update config file with variables
 
   handlers:
     - name: restart haproxy
