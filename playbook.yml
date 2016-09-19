@@ -3,18 +3,10 @@
   
   # edits haproxy config file with new data
   vars:
-    haproxy_app_name: myapp
     haproxy_mode: http # default
-    haproxy_enable_stats: enable # default
     haproxy_algorithm: roundrobin # default
     haproxy_frontend: localhost:8081 # change to frontend root URL
 
   roles:
     - database # pull jenkins info from JSON
     - haproxy # install haproxy, update config file with variables
-
-  handlers:
-    - name: restart haproxy
-      service:
-        name: haproxy
-        state: restarted

@@ -12,3 +12,9 @@
   template: src=templates/haproxy.cfg 
     dest=/etc/haproxy/haproxy.cfg 
     backup=yes
+  # template has default haproxy config + additional content from database role
+
+- name: restart haproxy
+  service:
+    name: haproxy
+    state: restarted
