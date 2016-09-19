@@ -1,4 +1,7 @@
 ---
+- name: create output file for JSON
+  shell: "echo '' >> output.json"
+
 - name: store JSON file
   uri:
     url: http://localhost:3000/api/v1/todos # change to location of JSON
