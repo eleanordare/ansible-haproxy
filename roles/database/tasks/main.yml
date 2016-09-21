@@ -1,20 +1,40 @@
 ---
 - name: create output file for JSON
   shell: "echo '' >> output.json"
+  tags:
+    - add
+    - remove
+    - change
+    - redeploy
 
 - name: store JSON file
   uri:
     url: http://localhost:3000/api/v1/todos # change to location of JSON
     dest: output.json
     method: GET
+  tags:
+    - add
+    - remove
+    - change
+    - redeploy
   # saves JSON of IP addresses in local text file
 
 - name: put JSON in variable
   set_fact:
     JSON_contents: "{{ lookup('file', 'output.json') }}"
+  tags:
+    - add
+    - remove
+    - change
+    - redeploy
   # creates variable from JSON to loop through in haproxy config
 
 - name: list all elements from database
   shell: "echo 'Name: {{ item.text }}, Location: {{ item.ip }}:{{ item.port }}' >> list.txt"
   with_items: "{{ JSON_contents}}"
+  tags:
+    - add
+    - remove
+    - change
+    - redeploy
   # for testing purposes, lists all IP addresses in local text file

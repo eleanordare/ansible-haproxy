@@ -6,15 +6,71 @@
 
 - name: change SE linux settings
   shell: semanage port -m -t http_port_t -p tcp 8081
+  tags:
+    - redeploy
   # change to frontend port
 
 - name: update HAProxy config
   template: src=templates/haproxy.cfg 
     dest=/etc/haproxy/haproxy.cfg 
     backup=yes
+  tags:
+    - add
+    - remove
+    - change
+    - redeploy
   # template has default haproxy config + additional content from database role
 
+- name: set test JSON
+  set_fact:
+    test_JSON: "{{ lookup('file', 'test.json') }}"
+  tags:
+    - add
+    - remove
+    - change
+    - redeploy
+
+- block:
+  - name: remove frontend from HAProxy config with block
+    blockinfile:
+      marker: "  # {mark} FRONTEND MANAGED BLOCK {{item.text}}"
+      dest: /etc/haproxy/haproxy.cfg
+      content: ""
+    with_items: "{{test_JSON}}"
+  - name: remove server from HAProxy config with block
+    blockinfile:
+      marker: "# {mark} BACKEND MANAGED BLOCK {{item.text}}"
+      dest: /etc/haproxy/haproxy.cfg
+      content: ""
+    with_items: "{{test_JSON}}"
+  tags:
+    - remove
+
+- block:
+  - name: change server in HAProxy config (text)
+    replace:
+      dest: /etc/haproxy/haproxy.cfg
+      regexp: "{{item.text}}"
+      replace: "{{JSON_contents[1].text}}"
+    with_items: "{{test_JSON}}"
+  - name: change server in HAProxy config (ip)
+    replace:
+      dest: /etc/haproxy/haproxy.cfg
+      regexp: "{{item.ip}}"
+      replace: "{{JSON_contents[1].ip}}"
+    with_items: "{{test_JSON}}"
+  - name: change server in HAProxy config (port)
+    replace:
+      dest: /etc/haproxy/haproxy.cfg
+      regexp: "{{item.port}}"
+      replace: "{{JSON_contents[1].port}}"
+    with_items: "{{test_JSON}}"
+  tags:
+    - change
+  
 - name: restart haproxy
   service:
     name: haproxy
     state: restarted
+  tags:
+    - redeploy
